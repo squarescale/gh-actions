@@ -19,6 +19,12 @@ func TestBatches(t *testing.T) {
 	t.Run("Create periodic batch with periodicity", TestCreatePeriodicBatchWithPeriodicity)
 	t.Run("Create periodic batch with time zone", TestCreatePeriodicBatchWithTimeZone)
 	t.Run("Create periodic batch", TestCreatePeriodicBatch)
+
+	t.Run("Insert batch env and limits with empty values", TestInsertBatchEnvAndLimitsWithEmptyValues)
+	t.Run("Insert batch env and limits with memory limit", TestInsertBatchEnvAndLimitsWithMemoryLimit)
+	t.Run("Insert batch env and limits with net limit", TestInsertBatchEnvAndLimitsWithNetLimit)
+	t.Run("Insert batch env and limits with CPU limit", TestInsertBatchEnvAndLimitsWithCPULimit)
+	t.Run("Insert batch env and limits with env", TestInsertBatchEnvAndLimitsWithEnv)
 }
 
 func TestCreateBatchWithEmptyBatchContentAndBatchName(t *testing.T) {
@@ -271,5 +277,114 @@ func TestCreatePeriodicBatch(t *testing.T) {
 	// then
 	if expectedCMD != cmd {
 		t.Fatalf("Command not correct, expected to be '%s', but got '%s'", expectedCMD, cmd)
+	}
+}
+
+func TestInsertBatchEnvAndLimitsWithEmptyValues(t *testing.T) {
+	// given
+	batches := Batches{}
+	batchContent := BatchContent{}
+	executeCommand = func(cmd string, errorMsg string) {}
+	expectedCMD := ""
+	// when
+	cmd := batches.insertBatchEnvAndLimits("", batchContent)
+
+	// then
+	if expectedCMD != cmd {
+		t.Fatalf("Command not correct, expected to be '%s', but got '%s'", expectedCMD, cmd)
+	}
+}
+
+func TestInsertBatchEnvAndLimitsWithCPULimit(t *testing.T) {
+	// given
+	batches := Batches{}
+	batchContent := BatchContent{
+		LIMIT_CPU: "12",
+	}
+	executeCommand = func(cmd string, errorMsg string) {}
+	expectedCMD := "/sqsc batch set -project-name  -batch-name testBatch -cpu 12"
+	// when
+	cmd := batches.insertBatchEnvAndLimits("testBatch", batchContent)
+
+	// then
+	if expectedCMD != cmd {
+		t.Fatalf("Command not correct, expected to be '%s', but got '%s'", expectedCMD, cmd)
+	}
+}
+
+func TestInsertBatchEnvAndLimitsWithMemoryLimit(t *testing.T) {
+	// given
+	batches := Batches{}
+	batchContent := BatchContent{
+		LIMIT_MEMORY: "1200",
+	}
+	executeCommand = func(cmd string, errorMsg string) {}
+	expectedCMD := "/sqsc batch set -project-name  -batch-name testBatch -memory 1200"
+	// when
+	cmd := batches.insertBatchEnvAndLimits("testBatch", batchContent)
+
+	// then
+	if expectedCMD != cmd {
+		t.Fatalf("Command not correct, expected to be '%s', but got '%s'", expectedCMD, cmd)
+	}
+}
+
+func TestInsertBatchEnvAndLimitsWithNetLimit(t *testing.T) {
+	// given
+	batches := Batches{}
+	batchContent := BatchContent{
+		LIMIT_NET: "12",
+	}
+	executeCommand = func(cmd string, errorMsg string) {}
+	expectedCMD := "/sqsc batch set -project-name  -batch-name testBatch -net 12"
+	// when
+	cmd := batches.insertBatchEnvAndLimits("testBatch", batchContent)
+
+	// then
+	if expectedCMD != cmd {
+		t.Fatalf("Command not correct, expected to be '%s', but got '%s'", expectedCMD, cmd)
+	}
+}
+
+func TestInsertBatchEnvAndLimitsWithEnv(t *testing.T) {
+	// given
+	batches := Batches{}
+	batchContent := BatchContent{
+		ENV: map[string]string{
+			"DB_HOST": "test.host",
+			"DB_NAME": "dbTest",
+		},
+	}
+	executeCommand = func(cmd string, errorMsg string) {}
+	expectedCMD := "/sqsc batch set -project-name  -batch-name testBatch -env batchEnvVar.json"
+	// when
+	cmd := batches.insertBatchEnvAndLimits("testBatch", batchContent)
+
+	// then
+	if expectedCMD != cmd {
+		t.Fatalf("Command not correct, expected to be '%s', but got '%s'", expectedCMD, cmd)
+	}
+
+	mapEnv, err := readEnvFile()
+
+	if err != nil {
+		t.Fatalf("Expected no error, got '%s'", err)
+	}
+
+	for key, value := range mapEnv {
+		switch key {
+		case "DB_HOST":
+			expectedEnv := "test.host"
+			if value != expectedEnv {
+				t.Fatalf("Env not correct, expected to be '%s', but got '%s'", expectedEnv, value)
+			}
+		case "DB_NAME":
+			expectedEnv := "dbTest"
+			if value != expectedEnv {
+				t.Fatalf("Env not correct, expected to be '%s', but got '%s'", expectedEnv, value)
+			}
+		default:
+			t.Fatalf("Env key '%s' is not correct", key)
+		}
 	}
 }

@@ -44,10 +44,12 @@ func (b *Batches) create() {
 
 		for batchName, batchContent := range batches {
 			if !isBatchExists(batchName) {
+
 				_, err := b.createBatch(batchName, batchContent)
 				if err != nil {
 					log.Fatal(err)
 				}
+
 				b.insertBatchEnvAndLimits(batchName, batchContent)
 			} else {
 				fmt.Println(fmt.Sprintf("Batch %q already exists.", batchName))
