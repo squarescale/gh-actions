@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -43,7 +44,10 @@ func (b *Batches) create() {
 
 		for batchName, batchContent := range batches {
 			if !isBatchExists(batchName) {
-				b.createBatch(batchName, batchContent)
+				_, err := b.createBatch(batchName, batchContent)
+				if err != nil {
+					log.Fatal(err)
+				}
 				b.insertBatchEnvAndLimits(batchName, batchContent)
 			} else {
 				fmt.Println(fmt.Sprintf("Batch %q already exists.", batchName))
@@ -56,7 +60,7 @@ func (b *Batches) create() {
 	}
 }
 
-func (b *Batches) createBatch(batchName string, batchContent BatchContent) {
+func (b *Batches) createBatch(batchName string, batchContent BatchContent) (string, error) {
 	fmt.Println(fmt.Sprintf("Creating %q batch...", batchName))
 
 	cmd := "/sqsc batch add"
@@ -71,9 +75,13 @@ func (b *Batches) createBatch(batchName string, batchContent BatchContent) {
 	cmd += " -imageName " + imageName
 
 	if batchContent.IS_PRIVATE {
-		cmd += " -imagePrivate"
-		cmd += " -imageUser " + batchContent.IMAGE_USER
-		cmd += " -imagePwd " + batchContent.IMAGE_PASSWORD
+		if batchContent.IMAGE_USER != "" && batchContent.IMAGE_PASSWORD != "" {
+			cmd += " -imagePrivate"
+			cmd += " -imageUser " + batchContent.IMAGE_USER
+			cmd += " -imagePwd " + batchContent.IMAGE_PASSWORD
+		} else {
+			return "", errors.New("image_user and image_password needs to be set when is_private is true")
+		}
 	}
 
 	if (BatchPeriodic{}) != batchContent.PERIODIC {
@@ -93,9 +101,10 @@ func (b *Batches) createBatch(batchName string, batchContent BatchContent) {
 	}
 
 	executeCommand(cmd, fmt.Sprintf("Fail to add %q batch.", batchName))
+	return cmd, nil
 }
 
-func (b *Batches) insertBatchEnvAndLimits(batchName string, batchContent BatchContent) {
+func (b *Batches) insertBatchEnvAndLimits(batchName string, batchContent BatchContent) string {
 
 	limitMemory := batchContent.LIMIT_MEMORY
 	limitNet := batchContent.LIMIT_NET
@@ -135,10 +144,12 @@ func (b *Batches) insertBatchEnvAndLimits(batchName string, batchContent BatchCo
 		}
 
 		executeCommand(cmd, "Fail to insert batch env.")
+		return cmd
 	}
+	return ""
 }
 
-func (b *Batches) executeBatch(batchName string) {
+func (b *Batches) executeBatch(batchName string) string {
 	fmt.Println(fmt.Sprintf("Executing %q batch ...", batchName))
 
 	cmd := fmt.Sprintf(
@@ -147,6 +158,7 @@ func (b *Batches) executeBatch(batchName string) {
 		batchName,
 	)
 	executeCommand(cmd, fmt.Sprintf("Fail to execute %q batch.", batchName))
+	return cmd
 }
 
 func isBatchExists(batchName string) bool {

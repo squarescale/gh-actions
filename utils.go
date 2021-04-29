@@ -7,6 +7,8 @@ import (
 	"os/exec"
 )
 
+var executeCommand = executeSQSCCommand
+
 func checkEnvironmentVariablesExists() {
 	fmt.Println("Checking environment variables...")
 
@@ -29,7 +31,7 @@ func checkEnvironmentVariablesExists() {
 	}
 }
 
-func executeCommand(cmd string, errorMsg string) {
+func executeSQSCCommand(cmd string, errorMsg string) {
 	fmt.Println(cmd)
 	output, err := exec.Command("/bin/sh", "-c", cmd).Output()
 
