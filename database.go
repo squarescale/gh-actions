@@ -1,32 +1,34 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"os"
-	"os/exec"
 
 	"github.com/hoisie/mustache"
 )
 
 type Database struct{}
 
-func (d *Database) create() {
+func (d *Database) create() error {
 	_, dbEngineExists := os.LookupEnv(dbEngine)
 	_, dbEngineVersionExists := os.LookupEnv(dbEngineVersion)
 	_, dbEngineSizeExists := os.LookupEnv(dbSize)
 
-	if dbEngineExists && dbEngineVersionExists && dbEngineSizeExists {
-		if !isDatabaseExists() {
-			d.createDatabase()
-		} else {
-			fmt.Println("Database already exists.")
-		}
-	} else {
-		fmt.Println(fmt.Sprintf("%s, %s, %s are not set correctly. No database will be created.", dbEngine, dbEngineVersion, dbSize))
+	if !dbEngineExists && !dbEngineVersionExists && !dbEngineSizeExists {
+		return errors.New(fmt.Sprintf("%s, %s, %s are not set correctly. No database will be created.", dbEngine, dbEngineVersion, dbSize))
 	}
+
+	if !isDatabaseExists() {
+		d.createDatabase()
+	} else {
+		fmt.Println("Database already exists.")
+	}
+
+	return nil
 }
 
-func (d *Database) createDatabase() {
+func (d *Database) createDatabase() string {
 	fmt.Println("Creating database...")
 
 	cmd := fmt.Sprintf(
@@ -37,13 +39,14 @@ func (d *Database) createDatabase() {
 		os.Getenv(dbSize),
 	)
 	executeCommand(cmd, "Fail to create database.")
+	return cmd
 }
 
 func isDatabaseExists() bool {
-	_, databaseNotExists := exec.Command("/bin/sh", "-c", fmt.Sprintf(
+	databaseNotExists := executeCommand(fmt.Sprintf(
 		"/sqsc db show -project-name %s | grep \"DB enabled\" | grep true",
 		getProjectName(),
-	)).Output()
+	), "Fail to check if database exists.")
 
 	return databaseNotExists == nil
 }

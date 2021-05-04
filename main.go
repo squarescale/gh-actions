@@ -1,5 +1,7 @@
 package main
 
+import "fmt"
+
 const (
 	sqscToken           = "SQSC_TOKEN"
 	dockerRepository    = "DOCKER_REPOSITORY"
@@ -26,7 +28,10 @@ func main() {
 	project.create()
 
 	database := Database{}
-	database.create()
+	err := database.create()
+	if err != nil {
+		fmt.Println(err)
+	}
 
 	services := Services{}
 	services.create()

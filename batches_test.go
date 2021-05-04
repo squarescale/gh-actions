@@ -32,7 +32,7 @@ func TestCreateBatchWithEmptyBatchContentAndBatchName(t *testing.T) {
 	batches := Batches{}
 	batchContent := BatchContent{}
 	expectedCMD := "/sqsc batch add -name  -project-name  -run-command '' -imageName "
-	executeCommand = func(cmd string, errorMsg string) {}
+	executeCommand = func(cmd string, errorMsg string) interface{} { return nil }
 
 	// when
 	cmd, _ := batches.createBatch("", batchContent)
@@ -48,7 +48,7 @@ func TestCreateBatchWithBatchName(t *testing.T) {
 	batches := Batches{}
 	batchContent := BatchContent{}
 	expectedCMD := "/sqsc batch add -name Test-batch -project-name  -run-command '' -imageName "
-	executeCommand = func(cmd string, errorMsg string) {}
+	executeCommand = func(cmd string, errorMsg string) interface{} { return nil }
 
 	// when
 	cmd, _ := batches.createBatch("Test-batch", batchContent)
@@ -70,7 +70,7 @@ func TestCreateBatchWithProjectName(t *testing.T) {
 	batches := Batches{}
 	batchContent := BatchContent{}
 	expectedCMD := "/sqsc batch add -name  -project-name orga-test/project-test -run-command '' -imageName "
-	executeCommand = func(cmd string, errorMsg string) {}
+	executeCommand = func(cmd string, errorMsg string) interface{} { return nil }
 
 	// when
 	cmd, _ := batches.createBatch("", batchContent)
@@ -88,7 +88,7 @@ func TestCreateBatchWithRunCMD(t *testing.T) {
 		RUN_CMD: "Test command...",
 	}
 	expectedCMD := "/sqsc batch add -name  -project-name  -run-command 'Test command...' -imageName "
-	executeCommand = func(cmd string, errorMsg string) {}
+	executeCommand = func(cmd string, errorMsg string) interface{} { return nil }
 
 	// when
 	cmd, _ := batches.createBatch("", batchContent)
@@ -106,7 +106,7 @@ func TestCreateBatchWithImageName(t *testing.T) {
 		IMAGE_NAME: "TestImage",
 	}
 	expectedCMD := "/sqsc batch add -name  -project-name  -run-command '' -imageName TestImage"
-	executeCommand = func(cmd string, errorMsg string) {}
+	executeCommand = func(cmd string, errorMsg string) interface{} { return nil }
 
 	// when
 	cmd, _ := batches.createBatch("", batchContent)
@@ -128,7 +128,7 @@ func TestCreateBatchWithEnvDockerRepositoryTag(t *testing.T) {
 	batches := Batches{}
 	batchContent := BatchContent{}
 	expectedCMD := "/sqsc batch add -name  -project-name  -run-command '' -imageName dockerTest:tagTest"
-	executeCommand = func(cmd string, errorMsg string) {}
+	executeCommand = func(cmd string, errorMsg string) interface{} { return nil }
 
 	// when
 	cmd, _ := batches.createBatch("", batchContent)
@@ -152,7 +152,7 @@ func TestCreateBatchWithEnvDockerRepositoryTagAndImageName(t *testing.T) {
 		IMAGE_NAME: "TestImage",
 	}
 	expectedCMD := "/sqsc batch add -name  -project-name  -run-command '' -imageName TestImage"
-	executeCommand = func(cmd string, errorMsg string) {}
+	executeCommand = func(cmd string, errorMsg string) interface{} { return nil }
 
 	// when
 	cmd, _ := batches.createBatch("", batchContent)
@@ -172,7 +172,7 @@ func TestCreateBatchWithIsPrivate(t *testing.T) {
 		IMAGE_PASSWORD: "12345",
 	}
 	expectedCMD := "/sqsc batch add -name  -project-name  -run-command '' -imageName  -imagePrivate -imageUser userTest -imagePwd 12345"
-	executeCommand = func(cmd string, errorMsg string) {}
+	executeCommand = func(cmd string, errorMsg string) interface{} { return nil }
 
 	// when
 	cmd, _ := batches.createBatch("", batchContent)
@@ -190,7 +190,7 @@ func TestCreateBatchWithIsPrivateAndEmptyUser(t *testing.T) {
 		IS_PRIVATE:     true,
 		IMAGE_PASSWORD: "12345",
 	}
-	executeCommand = func(cmd string, errorMsg string) {}
+	executeCommand = func(cmd string, errorMsg string) interface{} { return nil }
 
 	// when
 	_, err := batches.createBatch("", batchContent)
@@ -208,7 +208,7 @@ func TestCreateBatchWithIsPrivateAndEmptyPassword(t *testing.T) {
 		IS_PRIVATE: true,
 		IMAGE_USER: "userTest",
 	}
-	executeCommand = func(cmd string, errorMsg string) {}
+	executeCommand = func(cmd string, errorMsg string) interface{} { return nil }
 
 	// when
 	_, err := batches.createBatch("", batchContent)
@@ -228,7 +228,7 @@ func TestCreatePeriodicBatchWithPeriodicity(t *testing.T) {
 	batchContent := BatchContent{
 		PERIODIC: periodicBatch,
 	}
-	executeCommand = func(cmd string, errorMsg string) {}
+	executeCommand = func(cmd string, errorMsg string) interface{} { return nil }
 	expectedCMD := "/sqsc batch add -name  -project-name  -run-command '' -imageName  -periodic -cron '1 * * * *' -time \"Europe/Paris\""
 	// when
 	cmd, _ := batches.createBatch("", batchContent)
@@ -248,7 +248,7 @@ func TestCreatePeriodicBatchWithTimeZone(t *testing.T) {
 	batchContent := BatchContent{
 		PERIODIC: periodicBatch,
 	}
-	executeCommand = func(cmd string, errorMsg string) {}
+	executeCommand = func(cmd string, errorMsg string) interface{} { return nil }
 	expectedCMD := "/sqsc batch add -name  -project-name  -run-command '' -imageName  -periodic -cron '* * * * *' -time \"Europe/Test\""
 	// when
 	cmd, _ := batches.createBatch("", batchContent)
@@ -269,7 +269,7 @@ func TestCreatePeriodicBatch(t *testing.T) {
 	batchContent := BatchContent{
 		PERIODIC: periodicBatch,
 	}
-	executeCommand = func(cmd string, errorMsg string) {}
+	executeCommand = func(cmd string, errorMsg string) interface{} { return nil }
 	expectedCMD := "/sqsc batch add -name  -project-name  -run-command '' -imageName  -periodic -cron '1 * * * *' -time \"Europe/Test\""
 	// when
 	cmd, _ := batches.createBatch("", batchContent)
@@ -284,7 +284,7 @@ func TestInsertBatchEnvAndLimitsWithEmptyValues(t *testing.T) {
 	// given
 	batches := Batches{}
 	batchContent := BatchContent{}
-	executeCommand = func(cmd string, errorMsg string) {}
+	executeCommand = func(cmd string, errorMsg string) interface{} { return nil }
 	expectedCMD := ""
 	// when
 	cmd := batches.insertBatchEnvAndLimits("", batchContent)
@@ -301,7 +301,7 @@ func TestInsertBatchEnvAndLimitsWithCPULimit(t *testing.T) {
 	batchContent := BatchContent{
 		LIMIT_CPU: "12",
 	}
-	executeCommand = func(cmd string, errorMsg string) {}
+	executeCommand = func(cmd string, errorMsg string) interface{} { return nil }
 	expectedCMD := "/sqsc batch set -project-name  -batch-name testBatch -cpu 12"
 	// when
 	cmd := batches.insertBatchEnvAndLimits("testBatch", batchContent)
@@ -318,7 +318,7 @@ func TestInsertBatchEnvAndLimitsWithMemoryLimit(t *testing.T) {
 	batchContent := BatchContent{
 		LIMIT_MEMORY: "1200",
 	}
-	executeCommand = func(cmd string, errorMsg string) {}
+	executeCommand = func(cmd string, errorMsg string) interface{} { return nil }
 	expectedCMD := "/sqsc batch set -project-name  -batch-name testBatch -memory 1200"
 	// when
 	cmd := batches.insertBatchEnvAndLimits("testBatch", batchContent)
@@ -335,7 +335,7 @@ func TestInsertBatchEnvAndLimitsWithNetLimit(t *testing.T) {
 	batchContent := BatchContent{
 		LIMIT_NET: "12",
 	}
-	executeCommand = func(cmd string, errorMsg string) {}
+	executeCommand = func(cmd string, errorMsg string) interface{} { return nil }
 	expectedCMD := "/sqsc batch set -project-name  -batch-name testBatch -net 12"
 	// when
 	cmd := batches.insertBatchEnvAndLimits("testBatch", batchContent)
@@ -355,7 +355,7 @@ func TestInsertBatchEnvAndLimitsWithEnv(t *testing.T) {
 			"DB_NAME": "dbTest",
 		},
 	}
-	executeCommand = func(cmd string, errorMsg string) {}
+	executeCommand = func(cmd string, errorMsg string) interface{} { return nil }
 	expectedCMD := "/sqsc batch set -project-name  -batch-name testBatch -env batchEnvVar.json"
 	// when
 	cmd := batches.insertBatchEnvAndLimits("testBatch", batchContent)

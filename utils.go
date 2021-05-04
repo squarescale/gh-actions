@@ -31,7 +31,7 @@ func checkEnvironmentVariablesExists() {
 	}
 }
 
-func executeSQSCCommand(cmd string, errorMsg string) {
+func executeSQSCCommand(cmd string, errorMsg string) interface{} {
 	fmt.Println(cmd)
 	output, err := exec.Command("/bin/sh", "-c", cmd).Output()
 
@@ -41,6 +41,7 @@ func executeSQSCCommand(cmd string, errorMsg string) {
 	}
 
 	fmt.Println(string(output))
+	return output
 }
 
 func getProjectName() string {
