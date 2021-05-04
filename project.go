@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"os"
-	"os/exec"
 )
 
 type Project struct{}
@@ -16,7 +15,7 @@ func (p *Project) create() {
 	}
 }
 
-func (p *Project) createProject() {
+func (p *Project) createProject() string {
 	fmt.Println("Creating project...")
 
 	cmd := "/sqsc project create"
@@ -32,16 +31,17 @@ func (p *Project) createProject() {
 		cmd += " -monitoring " + os.Getenv(monitoring)
 	}
 
-	cmd += " -yes "
+	cmd += " -yes"
 
 	executeCommand(cmd, fmt.Sprintf("Fail to create project %q.", os.Getenv(projectName)))
+	return cmd
 }
 
 func isProjectExists() bool {
-	_, projectNotExists := exec.Command("/bin/sh", "-c", fmt.Sprintf(
+	projectNotExists := executeCommand(fmt.Sprintf(
 		"/sqsc project get -project-name %s",
 		getProjectName(),
-	)).Output()
+	), "Fail to check if project exists.")
 
 	return projectNotExists == nil
 }
