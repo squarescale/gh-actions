@@ -22,7 +22,10 @@ const (
 )
 
 func main() {
-	checkEnvironmentVariablesExists()
+	checkEnvVarError := checkEnvironmentVariablesExists()
+	if checkEnvVarError != nil {
+		fmt.Println(checkEnvVarError)
+	}
 
 	project := Project{}
 	project.create()

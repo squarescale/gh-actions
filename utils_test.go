@@ -5,7 +5,34 @@ import (
 	"io/ioutil"
 	"os"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
+
+func TestUtils(t *testing.T) {
+	t.Run("Check environment variables exists", CheckEnvironementVariablesExists)
+}
+
+func CheckEnvironementVariablesExists(t *testing.T) {
+	// given
+	env := map[string]string{
+		sqscToken:        "sqscToken",
+		dockerRepository: "dockerRepository",
+		projectName:      "projectName",
+		iaasProvider:     "iaasProvider",
+		iaasRegion:       "iaasRegion",
+		iaasCred:         "iaasCred",
+		nodeType:         "nodeType",
+		infraType:        "infraType",
+	}
+	setTestEnv(t, env)
+
+	// when
+	err := checkEnvironmentVariablesExists()
+
+	// then
+	assert.NoError(t, err)
+}
 
 func setTestEnv(t *testing.T, env map[string]string) {
 	os.Clearenv()

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -9,7 +10,7 @@ import (
 
 var executeCommand = executeSQSCCommand
 
-func checkEnvironmentVariablesExists() {
+func checkEnvironmentVariablesExists() error {
 	fmt.Println("Checking environment variables...")
 
 	envVars := []string{
@@ -25,10 +26,12 @@ func checkEnvironmentVariablesExists() {
 
 	for _, envVar := range envVars {
 		if _, exists := os.LookupEnv(envVar); !exists {
-			fmt.Println(fmt.Sprintf("%s is not set. Quitting.", envVar))
 			os.Exit(1)
+			return errors.New(fmt.Sprintf("%s is not set. Quitting.", envVar))
 		}
 	}
+
+	return nil
 }
 
 func executeSQSCCommand(cmd string, errorMsg string) interface{} {
